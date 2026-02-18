@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  kafka:
+    image: confluentinc/confluent-local:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"   # host -> container PLAINTEXT host listener
+      - "29092:29092" # optional: expose internal listener (useful for other containers/host)
+      - "29093:29093" # optional: expose controller internal port (if you want)
+    environment:
+      KAFKA_KRAFT_MODE: true
+      # Use env interpolation so we can set CLUSTER_ID externally
+      CLUSTER_ID: "${CLUSTER_ID}"
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:29093"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+      KAFKA_LISTENERS: "PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:9092"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+
+      KAFKA_LOG_DIRS: "/tmp/kraft-combined-logs"
+
+    volumes:
+      - ./kafka-data:/tmp/kraft-combined-logs
