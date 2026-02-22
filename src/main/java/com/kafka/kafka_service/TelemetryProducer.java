@@ -3,6 +3,7 @@ package com.kafka.kafka_service;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@Profile("!test")
 public class TelemetryProducer {
     private static final Logger logger = LoggerFactory.getLogger(TelemetryProducer.class);
     private final KafkaTemplate<String, Telemetry> kafkaTemplate;
@@ -31,7 +33,7 @@ public class TelemetryProducer {
             t.setDaemon(false);
             return t;
         });
-        executor.scheduleAtFixedRate(this::sendBatch, 0, 1, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(this::sendBatch, 0, 5, TimeUnit.MINUTES);
     }
 
     private void sendBatch() {

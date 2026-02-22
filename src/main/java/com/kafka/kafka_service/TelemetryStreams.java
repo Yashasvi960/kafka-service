@@ -24,7 +24,7 @@ public class TelemetryStreams {
 
         // JSON Serde for Telemetry (value)
         Map<String, Object> serdeProps = new HashMap<>();
-        serdeProps.put("json.trusted.packages", "com.example.telemetry");
+        serdeProps.put("json.trusted.packages", "com.kafka.kafka_service");
 
         JsonSerializer<Telemetry> telemetrySerializer = new JsonSerializer<>();
         JsonDeserializer<Telemetry> telemetryDeserializer = new JsonDeserializer<>(Telemetry.class);

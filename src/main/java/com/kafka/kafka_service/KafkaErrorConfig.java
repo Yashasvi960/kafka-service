@@ -12,11 +12,15 @@ public class KafkaErrorConfig {
 
     @Bean
     public DefaultErrorHandler errorHandler(KafkaTemplate<Object, Object> template) {
-        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(template);
+        DeadLetterPublishingRecoverer recoverer =
+                new DeadLetterPublishingRecoverer(template);
 
-        DefaultErrorHandler handler = new DefaultErrorHandler(recoverer, new FixedBackOff(1000L, 3));
+        // No retries; publish to DLT immediately to avoid duplicate processing.
+        DefaultErrorHandler handler =
+                new DefaultErrorHandler(recoverer, new FixedBackOff(0L, 0));
+
+        handler.setSeekAfterError(false);
 
         return handler;
-
     }
 }

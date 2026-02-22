@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: kafka-service
+  kafka:
+    streams:
+      auto-startup: false
+    listener:
+      auto-startup: false
+
