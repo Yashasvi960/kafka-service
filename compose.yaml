@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   kafka:
     image: confluentinc/confluent-local:latest
@@ -25,3 +23,20 @@ services:
 
     volumes:
       - ./kafka-data:/tmp/kraft-combined-logs
+
+  redis:
+    image: redis:7-alpine
+    container_name: kafka-service-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --maxmemory 512mb
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  redis-data:

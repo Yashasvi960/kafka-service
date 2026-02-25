@@ -1,5 +1,6 @@
 package com.kafka.kafka_service;
 
+import com.kafka.kafka_service.service.RedisService;
 import com.kafka.kafka_service.service.TelemetryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,9 +12,11 @@ public class TelemetryConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(TelemetryConsumer.class);
     private final TelemetryService telemetryService;
+    private final RedisService redisService;
 
-    public TelemetryConsumer(TelemetryService telemetryService) {
+    public TelemetryConsumer(TelemetryService telemetryService, RedisService redisService) {
         this.telemetryService = telemetryService;
+        this.redisService = redisService;
     }
 
     @KafkaListener(topics = "telemetry", groupId = "telemetry-group")
@@ -25,9 +28,16 @@ public class TelemetryConsumer {
             throw new IllegalArgumentException("Speed limit exceeded");
         }
 
-        logger.info("Received telemetry for vehicle {}: speed={}, location=({}, {})",
-                telemetry.getVehicleId(), telemetry.getSpeed(), telemetry.getLat(), telemetry.getLon());
+        Object o = redisService.get(telemetry.getVehicleId(), Telemetry.class);
+        if(o!=null) {
+            logger.info("Telemetry for vehicle {} retrieved from Redis: {}", telemetry.getVehicleId(), o);
+        } else {
+            redisService.set(telemetry.getVehicleId(), telemetry);
+            logger.info("Received telemetry for vehicle {}: speed={}, location=({}, {})",
+                    telemetry.getVehicleId(), telemetry.getSpeed(), telemetry.getLat(), telemetry.getLon());
 
-        System.out.println("Received: " + telemetry);
+            System.out.println("Received: " + telemetry);
+
+        }
     }
 }

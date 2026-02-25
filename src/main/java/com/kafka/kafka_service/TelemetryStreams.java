@@ -46,7 +46,8 @@ public class TelemetryStreams {
         );
 
         stream.groupByKey(Grouped.with(Serdes.String(), telemetrySerde))
-                .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofSeconds(30)))
+                .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofSeconds(10))
+                        .advanceBy(Duration.ofSeconds(1)))
                 .aggregate(
                         AvgSpeed::new,
                         (key, value, aggregate) -> {
